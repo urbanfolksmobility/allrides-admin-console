@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Allrides - bus Onboarding</title>
+    <link rel="icon" type="image/png" href="logo.svg">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .onboarding-container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+            max-width: 500px;
+            margin: auto;
+            margin-top: 50px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="onboarding-container">
+            <h2 class="text-center">Bus Onboarding</h2>
+            <!-- <p class="text-center text-muted">Hi this could be a begining of a eventful journey. Please go through the
+                question and fill appropriately.Any Information provided won't be shared to third party </p> -->
+            <form id="onboarding-form" class="mt-4">
+                <div class="mb-3">
+                    <label for="name" class="form-label">Bus Name</label>
+                    <input type="text" class="form-control" id="name" required>
+                </div>
+
+                <div class="mb-3">
+                    <label for="mob" class="form-label">Registration Number</label>
+                    <input type="text" class="form-control" id="number" required>
+                </div>
+
+                <div class="mb-3">
+                    <label for="owner" class="form-label">Owner-ID</label>
+                    <input type="text" class="form-control" id="owner">
+                </div>
+                <button type="submit" class="btn btn-success w-100">Submit</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const refreshToken = localStorage.getItem("refreshToken");
+        const accessToken = localStorage.getItem("accessToken");
+        const ownerId = sessionStorage.getItem("ownerId");
+
+
+        if (!accessToken) {
+            console.log("no access token");
+            if (!refreshToken) {
+                window.location.href = "login.html";
+            } else {
+                generateAccessToken(refreshToken);
+            }
+        }else if(!refreshToken){ 
+            
+            window.location.href = "login.html";
+        }
+
+        if(ownerId){
+            document.getElementById("owner").value = ownerId;
+        }
+
+
+        document.getElementById("onboarding-form").addEventListener("submit", function (event) {
+            event.preventDefault();
+            var name = document.getElementById("name").value;
+            var number = document.getElementById("number").value;
+            var owner = document.getElementById("owner").value;
+
+            addBusData(accessToken, name, number, owner);
+            alert(name+" is added to the bus list" + " with registration number " + number);
+            window.location.href = "index.html";
+        });
+
+    </script>
+    <script src="script.js"> </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

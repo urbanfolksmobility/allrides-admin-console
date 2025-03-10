@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Allrides- onboarding</title>
+    <link rel="icon" type="image/png" href="logo.svg">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+</head>
+
+<body>
+    <nav class="navbar navbar-dark bg-dark sticky-top">
+        <div class="container d-flex align-items-center">
+            <!-- Logo and Text -->
+            <div class="d-flex align-items-center">
+                <a class="navbar-brand" href="#">
+                    <img src="logo.svg" alt="" height="40">
+                </a>
+                <h4 class="mb-0 ms-2 text-white fs-5">AllRides</h4>
+            </div>
+
+            <!-- Logout Button -->
+            <button class="btn btn-danger ms-auto" onclick="logOut()">Logout</button>
+        </div>
+    </nav>
+
+    <div id="content" style="padding: 50px;">
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Onboard an owner</h5>
+                        <p class="card-text">For adding an owner these datas are required:
+                        <p>
+                        <ul>
+                            <li>Full Name</li>
+                            <li>Mobile Number</li>
+                            <li>Email</li>
+                            <li> Address</li>
+                        </ul>
+                        <a href="ownerOnboarding.html" class="btn btn-success">Onboard owner</a>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="col-sm-6 pt-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Onboard a Bus</h5>
+                        <p class="card-text">For adding an owner these datas are required:
+                        <p>
+                        <ul>
+                            <li>Bus-name</li>
+                            <li>Registration number</li>
+
+                        </ul>
+                        <br>
+                        <a href="busOnboarding.html" class="btn btn-success">Onboard Bus</a>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+        <br> <br>
+
+        <h4> Owner List</h4>
+        <!-- <a href="ownerOnboarding.html" class="btn btn-success">Add owner</a> <br><br> -->
+        <table class="table">
+            <thead class="thead-dark">
+                <tr>
+                    <th scope="col">id</th>
+                    <th scope="col">name</th>
+                    <th scope="col">mobile</th>
+                    <th scope="col">address</th>
+                    <th scope="col">email</th>
+                    <th scope="col">action</th>
+
+                </tr>
+            </thead>
+            <tbody id="ownerList">
+
+            </tbody>
+        </table>
+
+        <br> <br>
+        <h4> Bus List</h4>
+        <table class="table">
+            <thead class="thead-dark">
+                <tr>
+                    <th scope="col">id</th>
+                    <th scope="col">name</th>
+                    <th scope="col">number</th>
+                    <th scope="col">owner_id</th>
+                    <th scope="col">action</th>
+
+
+                </tr>
+            </thead>
+            <tbody id="busList">
+            </tbody>
+        </table>
+
+        <br> <br>
+        <h4> Conductor List</h4>
+        <table class="table">
+            <thead class="thead-dark">
+                <tr>
+                    <th scope="col">sl no</th>
+                    <th scope="col">Conductor-ID</th>
+                    <th scope="col">Bus-ID</th>
+                    <th scope="col">User-ID</th>
+
+
+
+                </tr>
+            </thead>
+            <tbody id="conductorList">
+            </tbody>
+        </table>
+
+
+
+
+
+
+
+
+    </div>
+
+</body>
+<script src="script.js"></script>
+<script type="module">
+
+    window.onload = function () {
+
+    }
+
+
+    const refreshToken = localStorage.getItem("refreshToken");
+    const accessToken = localStorage.getItem("accessToken");
+
+    if (!accessToken) {
+        console.log("no access token");
+        if (!refreshToken) {
+            window.location.href = "login.html";
+        } else {
+            generateAccessToken(refreshToken);
+        }
+    } else if (!refreshToken) {
+
+        window.location.href = "login.html";
+    }
+
+
+    const ownerData = await getOwnerData(accessToken);
+
+
+
+    document.getElementById("ownerList").innerHTML = ownerData.map((owner) => {
+        return `<tr>
+        <td>${owner.id}</td>
+        <td>${owner.name}</td>
+        <td>${owner.mobile_number}</td>
+        <td>${owner.address}</td>
+        <td>${owner.email}</td>
+        <td><button class="btn btn-success add-bus-btn" data-id="${owner.id}"> Add Bus </button> </td>
+    </tr>`;
+    }).join("");
+
+
+    function addBus(ownerId) {
+        sessionStorage.setItem("ownerId", ownerId);
+        window.location.href = "busOnboarding.html";
+    }
+
+
+
+    document.querySelectorAll(".add-bus-btn").forEach(button => {
+        button.addEventListener("click", function () {
+            let ownerId = this.getAttribute("data-id");
+            addBus(ownerId);
+        });
+    });
+
+
+    const busData = await getBusData(accessToken);
+
+    document.getElementById("busList").innerHTML = busData.map((bus) => {
+        return `<tr>
+        <td>${bus.bus_id}</td>
+        <td>${bus.name}</td>
+        <td>${bus.number}</td>
+        <td>${bus.bus_owner_id}</td>
+        <td><button class="btn btn-success add-conductor-btn" data-id="${bus.bus_id}"> Add Conductor </button> </td>
+
+
+        
+
+      </tr>`;
+    }).join("");
+
+    function addConductor(busID) {
+        sessionStorage.setItem("busID", busID);
+        window.location.href = "conductorOnboarding.html";
+    }
+
+
+
+    document.querySelectorAll(".add-conductor-btn").forEach(button => {
+        button.addEventListener("click", function () {
+            let busID = this.getAttribute("data-id");
+            addConductor(busID);
+        });
+    });
+
+
+
+    //conductor
+
+    const conductorData = await getConductorData(accessToken);
+    console.log('Conductor Data:', conductorData);
+
+
+    document.getElementById("conductorList").innerHTML = conductorData.map((conductor, index) => {
+        return `<tr>
+        <td>${index + 1}</td>
+        <td>${conductor.conductor_id}</td>
+        <td>${conductor.bus_id}</td>
+        <td>${conductor.user_id}</td>
+
+
+      </tr>`;
+    }).join("");
+
+
+
+
+
+    
+
+
+
+
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+</html>
